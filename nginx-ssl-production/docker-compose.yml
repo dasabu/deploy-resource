@@ -12,9 +12,10 @@ services:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
     ports:
-      - "80:80"
-      - "443:443"
-    command: "/bin/sh -c 'while :; do sleep 720h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+      - '80:80'
+      - '443:443'
+    # NginX will be restarted every 1 month
+    command: '/bin/sh -c ''while :; do sleep 720h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
   certbot:
     container_name: my-certbot
     image: certbot/dns-nsone:v1.18.0
@@ -22,10 +23,11 @@ services:
     volumes:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
+    # Certbot will be restarted after 12g everyday (by execute the renew command)
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
   mysqldb:
-    image: mysql:5.7
+    image: mysql:8.0
     restart: unless-stopped
     container_name: my-db
     command: --init-file /data/application/init.sql
@@ -36,7 +38,7 @@ services:
       - MYSQL_ROOT_PASSWORD=123456
       - MYSQL_DATABASE=stack_overflow
     expose:
-      - "3306"
+      - '3306'
 
   backend:
     depends_on:
@@ -50,5 +52,5 @@ services:
     links:
       - mysqldb
     expose:
-      - "8000"
-  # docker compose -p hoidanit up -d
+      - '8000'
+# docker compose -p hoidanit up -d
